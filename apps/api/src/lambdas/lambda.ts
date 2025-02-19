@@ -1,12 +1,9 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
-import { RequestSchema, BatteryParamsSchema, MarketParamsSchema } from "./schema";
-import { z } from 'zod';
-import axios from 'axios';
-import {OptimizationResult } from "./types";
+import { RequestSchema} from "./schema";
+import batuEnergyApiClient from '../client';
+import {OptimizationResult, BatteryParams, MarketParams } from "./types";
 
-type RequestBody = z.infer<typeof RequestSchema>;
-type BatteryParams = z.infer<typeof BatteryParamsSchema>;
-type MarketParams = z.infer<typeof MarketParamsSchema>;
+
 
 
 export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
@@ -49,13 +46,18 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 };
 
 // Placeholder function to fetch market data
-async function fetchMarketData(marketParams: MarketParams): Promise<any> {
-  // Replace with actual API call
-  return axios.get('https://api.batuenergy.com/market-data', { params: marketParams });
+export async function fetchMarketData(marketParams: MarketParams): Promise<any> {
+  try {
+    const response = await batuEnergyApiClient.get('/electricity-data/pmls/zone', { params: marketParams });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching market data:', error);
+    throw new Error('Failed to fetch market data');
+  }
 }
 
 // Placeholder function for optimization logic
-function optimizeBatteryStorage(batteryParams: BatteryParams, marketData: any): OptimizationResult {
+export function optimizeBatteryStorage(batteryParams: BatteryParams, marketData: any): OptimizationResult {
   // Implement your optimization logic here
   return {
     daily_schedules: [

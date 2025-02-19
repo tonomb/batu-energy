@@ -2,15 +2,16 @@
   "name": "kitchen-sink",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "clean": "turbo run clean",
-    "dev": "turbo run dev",
+    "build": "dotenv -e .env -- turbo run build",
+    "clean": "dotenv -e .env -- turbo run clean",
+    "dev": "dotenv -e .env -- turbo run dev",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "lint": "turbo run lint",
-    "test": "turbo run test",
-    "check-types": "turbo run check-types"
+    "lint": "dotenv -e .env -- turbo run lint",
+    "test": "dotenv -e .env -- turbo run test",
+    "check-types": "dotenv -e .env -- turbo run check-types"
   },
   "devDependencies": {
+    "dotenv": "^16.4.7",
     "prettier": "^3.5.0",
     "turbo": "^2.4.2"
   },

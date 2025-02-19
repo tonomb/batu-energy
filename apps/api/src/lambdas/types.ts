@@ -1,3 +1,10 @@
+import { RequestSchema, BatteryParamsSchema, MarketParamsSchema } from "./schema";
+import { z } from 'zod';
+
+export type RequestBody = z.infer<typeof RequestSchema>;
+export type BatteryParams = z.infer<typeof BatteryParamsSchema>;
+export type MarketParams = z.infer<typeof MarketParamsSchema>;
+
   export interface OptimizationResult {
     daily_schedules: DayResult[];
     summary: OptimizationSummary;

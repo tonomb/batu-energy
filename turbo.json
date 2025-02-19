@@ -29,8 +29,10 @@
       "persistent": true
     }
   },
+  "globalDependencies": [".env", ".env.dev.local", "**/.env.*local"],
   "globalEnv": [
     "BATU_ENERGY_API_URL",
-    "BATU_ENERGY_API_KEY"
+    "BATU_ENERGY_API_KEY",
+    "API_PORT"
   ]
 }

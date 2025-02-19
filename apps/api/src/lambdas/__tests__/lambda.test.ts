@@ -1,12 +1,15 @@
 import { describe, it, expect, jest } from '@jest/globals';
 import { APIGatewayProxyEvent } from 'aws-lambda';
-import { handler } from './lambda';
+import { handler } from '../lambda';
 import axios from 'axios';
-import { OptimizationResult } from './types';
+import { OptimizationResult } from '../types';
 
 // Mock axios
-jest.mock('axios');
-const mockedAxios = axios as jest.Mocked<typeof axios>;
+jest.mock('../../client');
+import batuEnergyApiClient from '../../client';
+
+// Now you can use the mocked client in your tests
+const mockedClient = batuEnergyApiClient as jest.Mocked<typeof batuEnergyApiClient>;
 
 describe('Lambda Handler', () => {
   // Create a mock API Gateway event
@@ -27,7 +30,7 @@ describe('Lambda Handler', () => {
 
   it('should handle valid optimization request', async () => {
     // Mock the market data response
-    mockedAxios.get.mockResolvedValueOnce({ 
+    mockedClient.get.mockResolvedValueOnce({ 
       data: { prices: [100, 200, 300] } 
     });
 
