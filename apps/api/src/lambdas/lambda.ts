@@ -2,7 +2,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { RequestSchema, BatteryParamsSchema, MarketParamsSchema } from "./schema";
 import { z } from 'zod';
 import axios from 'axios';
-
+import {OptimizationResult } from "./types";
 
 type RequestBody = z.infer<typeof RequestSchema>;
 type BatteryParams = z.infer<typeof BatteryParamsSchema>;
@@ -55,9 +55,29 @@ async function fetchMarketData(marketParams: MarketParams): Promise<any> {
 }
 
 // Placeholder function for optimization logic
-function optimizeBatteryStorage(batteryParams: BatteryParams, marketData: any): any {
+function optimizeBatteryStorage(batteryParams: BatteryParams, marketData: any): OptimizationResult {
   // Implement your optimization logic here
   return {
-    message: 'Optimization result placeholder',
+    daily_schedules: [
+      {
+        date: "2024-01-01",
+        schedule: [
+          { hour: 0, action: "charge", power: 5, price: 1200, soc: 0.5 },
+          { hour: 1, action: "idle", power: 0, price: 1250, soc: 0.5 }
+        ],
+        revenue: 1500.00,
+        energy_charged: 20,
+        energy_discharged: 20,
+        avg_charge_price: 1100,
+        avg_discharge_price: 1400
+      }
+    ],
+    summary: {
+      total_revenue: 45000.00,
+      avg_daily_revenue: 1450.00,
+      best_day: { date: "2024-01-05", revenue: 2000 },
+      worst_day: { date: "2024-01-15", revenue: 500 }
+    }
   };
-}
+};
+

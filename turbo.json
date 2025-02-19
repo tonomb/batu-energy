@@ -28,5 +28,9 @@
       "cache": false,
       "persistent": true
     }
-  }
+  },
+  "globalEnv": [
+    "BATU_ENERGY_API_URL",
+    "BATU_ENERGY_API_KEY"
+  ]
 }

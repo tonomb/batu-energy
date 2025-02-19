@@ -1,42 +1,35 @@
-export interface BatteryParams {
-    capacity_mw: number;
-    duration_hours: number;
-    efficiency: number;
-    min_soc: number;
-    max_soc: number;
-  }
-  
-  export interface MarketParams {
-    zone: string;
-    start_date: string;
-    end_date: string;
-  }
-  
-  export interface RequestBody {
-    battery_params: BatteryParams;
-    market_params: MarketParams;
-  }
-
   export interface OptimizationResult {
-    total_cost: number;
-    total_energy: number;
-    total_duration: number;
-    total_soc: number;
-    total_soc_change: number;
+    daily_schedules: DayResult[];
+    summary: OptimizationSummary;
+  }
+  export interface HourlySchedule {
+    hour: number;
+    action: 'charge' | 'discharge' | 'idle';
+    power: number;
+    price: number;
+    soc: number;
   }
 
-  export interface DailySchedule {
-    start_time: string;
-    end_time: string;
-    energy_mw: number;
+  export interface DayResult {
+    date: string;
+    schedule: HourlySchedule[];
+    revenue: number;
+    energy_charged: number;
+    energy_discharged: number;
+    avg_charge_price: number;
+    avg_discharge_price: number;
   }
 
-  export interface SummaryData {
-    total_cost: number;
-    total_energy: number;
-    total_duration: number;
-    total_soc: number;
-    total_soc_change: number;
+  export interface BestWorstDay {
+    date: string;
+    revenue: number;
+  }
+
+  export interface OptimizationSummary {
+    total_revenue: number;
+    avg_daily_revenue: number;
+    best_day: BestWorstDay;
+    worst_day: BestWorstDay;
   }
   
   
