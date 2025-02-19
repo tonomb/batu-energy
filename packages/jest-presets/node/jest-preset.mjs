@@ -10,6 +10,10 @@ const config = {
     "<rootDir>/node_modules",
     "<rootDir>/dist",
   ],
+  testMatch:  [
+    "**/__tests__/**/*.ts?(x)",
+    "**/?(*.)+(spec|test).ts?(x)"
+  ],
   preset: "ts-jest",
 };
 
