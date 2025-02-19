@@ -27,24 +27,24 @@ export const BatteryParamsSchema = z.object({
   });
   
   export const MarketParamsSchema = z.object({
-    zone: z.string({
+    load_zone_id: z.string({
       required_error: "Zone is required",
       invalid_type_error: "Zone must be a string"
     }),
-    start_date: z.string({
+    date_start: z.string({
       required_error: "Start date is required",
       invalid_type_error: "Start date must be a string"
     }).datetime("Start date must be a valid ISO datetime"),
-    end_date: z.string({
+    date_end: z.string({
       required_error: "End date is required",
       invalid_type_error: "End date must be a string"
     }).datetime("End date must be a valid ISO datetime")
   }).superRefine((data, ctx) => {
-    if (new Date(data.start_date) > new Date(data.end_date)) {
+    if (new Date(data.date_start) > new Date(data.date_end)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Start date must be before end date",
-        path: ["start_date"]
+        path: ["date_start"]
       });
     }
   });

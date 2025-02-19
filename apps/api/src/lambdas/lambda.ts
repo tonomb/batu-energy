@@ -1,7 +1,7 @@
 import { APIGatewayProxyEvent, APIGatewayProxyResult } from 'aws-lambda';
 import { RequestSchema} from "./schema";
 import batuEnergyApiClient from '../client';
-import {OptimizationResult, BatteryParams, MarketParams } from "./types";
+import {OptimizationResult, BatteryParams, MarketParams, BatuEnergyApiResponse } from "./types";
 
 
 
@@ -46,7 +46,7 @@ export const handler = async (event: APIGatewayProxyEvent): Promise<APIGatewayPr
 };
 
 // Placeholder function to fetch market data
-export async function fetchMarketData(marketParams: MarketParams): Promise<any> {
+export async function fetchMarketData(marketParams: MarketParams): Promise<BatuEnergyApiResponse> {
   try {
     const response = await batuEnergyApiClient.get('/electricity-data/pmls/zone', { params: marketParams });
     return response.data;
@@ -57,7 +57,11 @@ export async function fetchMarketData(marketParams: MarketParams): Promise<any> 
 }
 
 // Placeholder function for optimization logic
-export function optimizeBatteryStorage(batteryParams: BatteryParams, marketData: any): OptimizationResult {
+export function optimizeBatteryStorage(batteryParams: BatteryParams, marketData: BatuEnergyApiResponse): OptimizationResult {
+  console.log('Battery Params:', batteryParams);
+
+  console.log('Market Data:', marketData);
+
   // Implement your optimization logic here
   return {
     daily_schedules: [

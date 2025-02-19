@@ -1,12 +1,13 @@
 import { describe, it, expect, jest } from '@jest/globals';
 import { APIGatewayProxyEvent } from 'aws-lambda';
 import { handler } from '../lambda';
-import axios from 'axios';
-import { OptimizationResult } from '../types';
-
+import {  OptimizationResult } from '../types';
+import { mockMarketData } from '../../__mocks__/batu_energy';
 // Mock axios
 jest.mock('../../client');
 import batuEnergyApiClient from '../../client';
+
+
 
 // Now you can use the mocked client in your tests
 const mockedClient = batuEnergyApiClient as jest.Mocked<typeof batuEnergyApiClient>;
@@ -31,7 +32,7 @@ describe('Lambda Handler', () => {
   it('should handle valid optimization request', async () => {
     // Mock the market data response
     mockedClient.get.mockResolvedValueOnce({ 
-      data: { prices: [100, 200, 300] } 
+      data: mockMarketData
     });
 
     const event = createMockEvent({
@@ -43,9 +44,9 @@ describe('Lambda Handler', () => {
         max_soc: 1.0
       },
       market_params: {
-        zone: "APATZINGAN",
-        start_date: "2024-01-01T00:00:00Z",
-        end_date: "2024-01-31T23:59:59Z"
+        load_zone_id: "APATZINGAN",
+        date_start: "2024-01-01T00:00:00Z",
+        date_end: "2024-01-31T23:59:59Z"
       }
     });
 
@@ -86,9 +87,9 @@ describe('Lambda Handler', () => {
         capacity_mw: '10', // Invalid type
       },
       market_params: {
-        zone: "APATZINGAN",
-        start_date: "2024-01-01T00:00:00Z",
-        end_date: "2024-01-31T23:59:59Z"
+        load_zone_id: "APATZINGAN",
+        date_start: "2024-01-01T00:00:00Z",
+        date_end: "2024-01-31T23:59:59Z"
       }
     });
 

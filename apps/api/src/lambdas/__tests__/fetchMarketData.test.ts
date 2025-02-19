@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import nock from 'nock';
 import { fetchMarketData } from '../lambda';
 import { MarketParams } from '../types';
+import { mockMarketData } from '../../__mocks__/batu_energy';
 
 const { BATU_ENERGY_API_URL } = process.env;
 
@@ -11,9 +12,9 @@ if (!BATU_ENERGY_API_URL) {
 
 describe('fetchMarketData', () => {
   const marketParams: MarketParams = {
-    zone: 'APATZINGAN',
-    start_date: '2024-01-01T00:00:00Z',
-    end_date: '2024-01-31T23:59:59Z'
+    load_zone_id: 'APATZINGAN',
+    date_start: '2024-01-01T00:00:00Z',
+    date_end: '2024-01-31T23:59:59Z'
   };
 
   beforeEach(() => {
@@ -21,7 +22,7 @@ describe('fetchMarketData', () => {
   });
 
   it('should return market data for valid parameters', async () => {
-    const mockResponse = { prices: [100, 200, 300] };
+    const mockResponse = mockMarketData;
 
     nock(BATU_ENERGY_API_URL)
       .get('/electricity-data/pmls/zone')

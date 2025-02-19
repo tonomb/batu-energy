@@ -38,5 +38,20 @@ export type MarketParams = z.infer<typeof MarketParamsSchema>;
     best_day: BestWorstDay;
     worst_day: BestWorstDay;
   }
+
+  export interface BatuEnergyApiResponse {
+    status: string;
+    items: number
+    data: {
+      load_zone_id: string;
+      timestamp: string;
+      date: string;
+      hour: string;
+      pml: number;
+      pml_cng: number;
+      pml_ene: number;
+      pml_per: number;
+    }[]
+  }
   
   
