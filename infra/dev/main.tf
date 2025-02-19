@@ -1,23 +1,19 @@
 provider "aws" {
-  region = "us-east-1" # Change to your preferred region
+  region = local.aws_region
 }
 
+// Lambda function
 resource "aws_lambda_function" "optimize_function" {
-  function_name = "optimizeFunction"
+  function_name = "optimize-function"
   role          = aws_iam_role.lambda_exec.arn
   handler       = "index.handler"
-  runtime       = "nodejs14.x" # Ensure this matches your Node.js version
+  runtime       = "nodejs20.x" 
   filename      = "path/to/your/lambda/deployment/package.zip" # Update with your deployment package path
-
-  environment {
-    variables = {
-      # Add any environment variables your function needs
-    }
-  }
 }
 
+// API Gateway
 resource "aws_api_gateway_rest_api" "optimize_api" {
-  name        = "OptimizeAPI"
+  name        = "optimize-api"
   description = "API for optimizing battery storage arbitrage"
 }
 

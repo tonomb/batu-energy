@@ -1,3 +1,4 @@
+// IAM role for Lambda execution
 resource "aws_iam_role" "lambda_exec" {
   name = "lambda_exec_role"
 
@@ -15,6 +16,7 @@ resource "aws_iam_role" "lambda_exec" {
   })
 }
 
+// IAM policy for Lambda execution
 resource "aws_iam_policy" "lambda_policy" {
   name        = "lambda_policy"
   description = "IAM policy for Lambda execution"
