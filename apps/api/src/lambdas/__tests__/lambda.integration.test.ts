@@ -5,7 +5,8 @@ import { RequestBody } from '../types';
 import util from 'util';
 
 
-const nodes = ['MONTERREY'];
+
+const nodes = ['MONTERREY', 'MERIDA', 'PUEBLA', 'CANCUN', 'OBREGON'];
 
 describe('Lambda Function Integration Test', () => {
   nodes.forEach(node => {
@@ -21,7 +22,7 @@ describe('Lambda Function Integration Test', () => {
         market_params: {
           load_zone_id: node,
           date_start: '2024-01-01T00:00:00Z',
-          date_end: '2024-01-02T00:00:00Z'
+          date_end: '2024-02-01T00:00:00Z'
         }
       };
 
@@ -44,7 +45,7 @@ describe('Lambda Function Integration Test', () => {
       expect(response.statusCode).toBe(200);
 
       console.log('NODE: ', node);
-      console.log(util.inspect(JSON.parse(response.body), false, null, true /* enable colors */));
+      console.log(util.inspect(JSON.parse(response.body).summary, false, null, true /* enable colors */));
       const body = JSON.parse(response.body);
       expect(body).toHaveProperty('daily_schedules');
       expect(body).toHaveProperty('summary');

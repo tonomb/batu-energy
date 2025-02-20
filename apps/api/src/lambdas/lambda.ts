@@ -63,12 +63,14 @@ export async function fetchMarketData(marketParams: MarketParams): Promise<BatuE
 
 
 // TODO: Use mathjs to handle big numbers and decimal precision
-export function optimizeBatteryStorage(batteryParams: BatteryParams, marketData: BatuEnergyApiResponse): OptimizationResult {
+export function optimizeBatteryStorage(
+  batteryParams: BatteryParams,
+  marketData: BatuEnergyApiResponse
+): OptimizationResult {
   const { capacity_mw, efficiency, min_soc, max_soc } = batteryParams;
-  const movingAveragePeriod = 5; // Example period for moving average
-  const schedules = [];
-  let soc = min_soc;
+  const minSpreadThreshold = 5; // Arbitrage threshold for profitable trades
 
+  let soc = min_soc;
   let totalCycles = 0;
   let totalCycleRevenue = 0;
   let totalArbitrageSpread = 0;
@@ -76,64 +78,89 @@ export function optimizeBatteryStorage(batteryParams: BatteryParams, marketData:
   let lastChargePrice = 0;
   let lastChargePower = 0;
 
+  const schedulesByDate = new Map<string, any[]>();
+  const revenueByDate = new Map<string, number>();
+
+  const round = (num: number) => Math.round(num * 100) / 100;
+
   for (let i = 0; i < marketData.data.length; i++) {
     const entry = marketData.data[i];
+    const nextPrice = marketData.data[i + 1]?.pml ?? entry.pml;
     const price = entry.pml;
-    const movingAverage = marketData.data.slice(Math.max(0, i - movingAveragePeriod), i).reduce((sum, e) => sum + e.pml, 0) / movingAveragePeriod;
+    const date = entry.date;
 
-    let action = Action.IDLE;
+    if (!schedulesByDate.has(date)) schedulesByDate.set(date, []);
+    if (!revenueByDate.has(date)) revenueByDate.set(date, 0);
+
+    let action: Action = Action.IDLE;
     let power = 0;
 
-    if (price < movingAverage && soc < max_soc) {
+    if (price === 0) {
+      continue; // Ignore and move to the next valid price
+    }
+    
+    
+    if (price < nextPrice - minSpreadThreshold && soc < max_soc) {
+      // Charge when price is low relative to next expected price
       action = Action.CHARGE;
-      power = capacity_mw * efficiency;
-      soc = Math.min(max_soc, soc + power / capacity_mw);
+      power = round(Math.min(capacity_mw * efficiency, (max_soc - soc) * capacity_mw));
+      soc = round(Math.min(max_soc, soc + (power / capacity_mw) * efficiency));
       lastChargePrice = price;
       lastChargePower = power;
-    } else if (price > movingAverage && soc > min_soc) {
+      revenueByDate.set(date, round(revenueByDate.get(date)! - power * price));
+    } else if (price > lastChargePrice + minSpreadThreshold && soc > min_soc) {
+      // Discharge when price is high relative to last charged price
       action = Action.DISCHARGE;
-      power = capacity_mw;
-      soc = Math.max(min_soc, soc - power / capacity_mw);
+      power = round(Math.min(capacity_mw, (soc - min_soc) * capacity_mw));
+      soc = round(Math.max(min_soc, soc - (power / capacity_mw)));
+      revenueByDate.set(date, round(revenueByDate.get(date)! + power * price));
 
-      // Calculate cycle metrics
       if (lastChargePower > 0) {
         totalCycles++;
         totalCycleRevenue += price * power - lastChargePrice * lastChargePower;
         totalArbitrageSpread += price - lastChargePrice;
-        lastChargePower = 0; // Reset after discharge
+        lastChargePower = 0;
       }
     }
 
-    schedules.push({ hour: parseInt(entry.hour, 10), action, power, price, soc });
+    schedulesByDate.get(date)!.push({ hour: parseInt(entry.hour, 10), action, power, price, soc });
   }
 
-  const dailySchedules = [{
-    date: marketData.data[0].date,
-    schedule: schedules,
-    revenue: schedules.reduce((acc, curr) => acc + (curr.action === Action.DISCHARGE ? curr.price * curr.power : 0), 0),
-    energy_charged: schedules.filter(s => s.action === Action.CHARGE).reduce((acc, curr) => acc + curr.power, 0),
-    energy_discharged: schedules.filter(s => s.action === Action.DISCHARGE).reduce((acc, curr) => acc + curr.power, 0),
-    avg_charge_price: schedules.filter(s => s.action === Action.CHARGE).reduce((acc, curr) => acc + curr.price, 0) / schedules.filter(s => s.action === Action.CHARGE).length,
-    avg_discharge_price: schedules.filter(s => s.action === Action.DISCHARGE).reduce((acc, curr) => acc + curr.price, 0) / schedules.filter(s => s.action === Action.DISCHARGE).length,
-  }];
+  // Generate daily schedules with calculated statistics
+  const dailySchedules = Array.from(schedulesByDate.entries()).map(([date, schedule]) => ({
+    date,
+    schedule,
+    revenue: round(revenueByDate.get(date) ?? 0),
+    energy_charged: round(schedule.filter(s => s.action === Action.CHARGE).reduce((acc, curr) => acc + curr.power, 0)),
+    energy_discharged: round(schedule.filter(s => s.action === Action.DISCHARGE).reduce((acc, curr) => acc + curr.power, 0)),
+    avg_charge_price: round(
+      schedule.filter(s => s.action === Action.CHARGE).reduce((acc, curr) => acc + curr.price, 0) /
+        Math.max(1, schedule.filter(s => s.action === Action.CHARGE).length)
+    ),
+    avg_discharge_price: round(
+      schedule.filter(s => s.action === Action.DISCHARGE).reduce((acc, curr) => acc + curr.price, 0) /
+        Math.max(1, schedule.filter(s => s.action === Action.DISCHARGE).length)
+    ),
+  }));
+
+  // Identify best and worst day based on revenue
+  const bestDay = dailySchedules.reduce((best, curr) => (curr.revenue > best.revenue ? curr : best), dailySchedules[0]);
+  const worstDay = dailySchedules.reduce((worst, curr) => (curr.revenue < worst.revenue ? curr : worst), dailySchedules[0]);
 
   return {
     daily_schedules: dailySchedules,
     summary: {
-      total_revenue: dailySchedules.reduce((acc, curr) => acc + curr.revenue, 0),
-      avg_daily_revenue: dailySchedules.reduce((acc, curr) => acc + curr.revenue, 0) / dailySchedules.length,
-      best_day: {
-        date: dailySchedules.reduce((best, curr) => curr.revenue > best.revenue ? curr : best, dailySchedules[0]).date,
-        revenue: dailySchedules.reduce((best, curr) => curr.revenue > best.revenue ? curr : best, dailySchedules[0]).revenue
-      },
-      worst_day: {
-        date: dailySchedules.reduce((worst, curr) => curr.revenue < worst.revenue ? curr : worst, dailySchedules[0]).date,
-        revenue: dailySchedules.reduce((worst, curr) => curr.revenue < worst.revenue ? curr : worst, dailySchedules[0]).revenue
-      },
+      total_revenue: round(dailySchedules.reduce((acc, curr) => acc + curr.revenue, 0)),
+      avg_daily_revenue: round(dailySchedules.reduce((acc, curr) => acc + curr.revenue, 0) / dailySchedules.length),
+      best_day: { date: bestDay.date, revenue: bestDay.revenue },
+      worst_day: { date: worstDay.date, revenue: worstDay.revenue },
       total_cycles: totalCycles,
-      avg_cycle_revenue: totalCycles > 0 ? totalCycleRevenue / totalCycles : 0,
-      avg_arbitrage_spread: totalCycles > 0 ? totalArbitrageSpread / totalCycles : 0
-    }
+      avg_cycle_revenue: totalCycles > 0 ? round(totalCycleRevenue / totalCycles) : 0,
+      avg_arbitrage_spread: totalCycles > 0 ? round(totalArbitrageSpread / totalCycles) : 0,
+    },
   };
 }
+
+
+
 
