@@ -32,7 +32,7 @@ describe('Lambda Handler', () => {
     resource: '',
   });
 
-  it.skip('should handle valid optimization request', async () => {
+  it('should handle valid optimization request', async () => {
     // Mock the market data response
     mockedClient.get.mockResolvedValueOnce({ 
       data: mockMarketData
@@ -53,27 +53,38 @@ describe('Lambda Handler', () => {
       }
     });
 
-    const mockResult: OptimizationResult =  {
+    const mockResult: OptimizationResult = {
       daily_schedules: [{
-        date: "2024-01-01",
-        schedule: [{ hour: 0, action: Action.CHARGE, power: 5, price: 1200, soc: 0.5 }, { hour: 1, action: Action.IDLE, power: 0, price: 1250, soc: 0.5 }],
-        revenue: 1500.00,
-        energy_charged: 20,
-        energy_discharged: 20,
-        avg_charge_price: 1100,
-        avg_discharge_price: 1400
+        date: "2024-01-02",
+        schedule: [{
+          hour: 1,
+          action: Action.IDLE,
+          power: 0,
+          price: 283.19,
+          soc: 0.1
+        }],
+        revenue: 0,
+        energy_charged: 0,
+        energy_discharged: 0,
+        avg_charge_price: 0,
+        avg_discharge_price: 0
       }],
       summary: {
-        total_revenue: 45000.00,
-        avg_daily_revenue: 1450.00,
-        best_day: { date: "2024-01-05", revenue: 2000 },
-        worst_day: { date: "2024-01-15", revenue: 500 },
+        total_revenue: 0,
+        avg_daily_revenue: 0,
+        best_day: {
+          date: "2024-01-02",
+          revenue: 0
+        },
+        worst_day: {
+          date: "2024-01-02",
+          revenue: 0
+        },
         total_cycles: 0,
         avg_cycle_revenue: 0,
         avg_arbitrage_spread: 0
       }
-    };
-  
+    }
     
     
     const response = await handler(event);
