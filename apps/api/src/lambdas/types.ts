@@ -5,13 +5,19 @@ export type RequestBody = z.infer<typeof RequestSchema>;
 export type BatteryParams = z.infer<typeof BatteryParamsSchema>;
 export type MarketParams = z.infer<typeof MarketParamsSchema>;
 
+export enum Action {
+  CHARGE = 'charge',
+  DISCHARGE = 'discharge',
+  IDLE = 'idle'
+}
+
   export interface OptimizationResult {
     daily_schedules: DayResult[];
     summary: OptimizationSummary;
   }
   export interface HourlySchedule {
     hour: number;
-    action: 'charge' | 'discharge' | 'idle';
+    action: Action;
     power: number;
     price: number;
     soc: number;
@@ -37,6 +43,9 @@ export type MarketParams = z.infer<typeof MarketParamsSchema>;
     avg_daily_revenue: number;
     best_day: BestWorstDay;
     worst_day: BestWorstDay;
+    total_cycles: number;
+    avg_cycle_revenue: number;
+    avg_arbitrage_spread: number;
   }
 
   export interface BatuEnergyApiResponse {
