@@ -1,2 +1,0 @@
-
-curl -XGET -H 'x-api-key: 1FjfxoDv5g4586CtdWRuS80Jzci9wqYT9vsy7MBF' 'https://api.batuenergy.com/electricity-data/pmls/zone?load_zone_id=MERIDA&date_start=2024-01-01%2000:00:00&date_end=2024-01-02%2000:00:00'

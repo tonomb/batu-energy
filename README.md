@@ -26,6 +26,55 @@ This project was created using a turbo monorepo with npm as package manager.
 
 ---
 
+## Deploy to AWS
+
+The project uses terraform to deploy the infrastructure in AWS.
+
+
+## Building and Deploying Lambda
+
+1. Add your AWS credentials to the `.env` file. Follow this [tutorial](https://medium.com/@CloudTopG/discover-the-3-steps-to-creating-an-iam-user-with-access-secret-access-keys-for-terraform-scripts-28110e280460) to create an IAM user with access to the AWS account.
+
+```
+AWS_REGION=
+AWS_ACCOUNT_ID=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+```
+
+1. Build the Lambda function:
+```bash
+cd apps/api
+npm run build:lambda
+npm run package:lambda
+```
+
+2. Deploy API Gateway and Lambda function with Terraform:
+```bash
+cd ./infra
+terraform init
+terraform apply
+```
+
+3. Test the deployed endpoint:
+```bash
+curl -X POST $(terraform output -raw api_url)/optimize \
+  -H "Content-Type: application/json" \
+  -d '{
+    "battery_params": {
+      "capacity_mw": 10,
+      "duration_hours": 4,
+      "efficiency": 0.85,
+      "min_soc": 0.1,
+      "max_soc": 1.0
+    },
+    "market_params": {
+      "zone": "APATZINGAN",
+      "start_date": "2024-01-01T00:00:00Z",
+      "end_date": "2024-01-31T23:59:59Z"
+    }
+  }'
+```
 
 # Code Challenge: Battery Storage Arbitrage Optimizer
 
@@ -37,7 +86,7 @@ This project was created using a turbo monorepo with npm as package manager.
 
 - Diviértete, aprende cosas nuevas y experimenta: aprovecha el tiempo que vas a dedicar a resolver este code challenge para usar tu creatividad y aprender cosas nuevas.
 - Usa Claude y/o Cursor: al crear tu cuenta en Cursor tienes una semana gratis de uso del producto. También puedes usar Claude, contáctanos si te interesa usarlo y te daremos una cuenta premium para que lo uses sin límite durante el code challenge.
-- Sigue la filosofía de [“do things that don’t scale”](https://www.paulgraham.com/ds.html), es un pilar fundamental de la cultura de trabajo en Batu
+- Sigue la filosofía de ["do things that don't scale"](https://www.paulgraham.com/ds.html), es un pilar fundamental de la cultura de trabajo en Batu
 - Escríbenos: ¡queremos ser parte de tu challenge! Involúcranos tanto como quieras durante el proceso de resolución del challenge.
 
 ¡Buena suerte!
@@ -58,12 +107,12 @@ Se proporcionará un API key para la API de Batu Energy MEM, donde podrás consu
 
 ## **Overview**
 
-This endpoint retrieves Power Marginal Local (PML) prices for a specific load zone within a given date range.
+This endpoint retrieves Power Marginal Local (PML) prices for a specific load zone within a given date range.
 
 ## **Endpoint Details**
 
-- **URL**: /pml/zones
-- **Method**: GET
+- **URL**: /pml/zones
+- **Method**: GET
 - **Authentication**: Required (API Key)
 
 ## **Query Parameters**
@@ -71,31 +120,31 @@ This endpoint retrieves Power Marginal Local (PML) prices for a specific load z
 ```markdown
 | Parameter      | Type    | Required | Description                                        | Example               |
 | -------------- | ------- | -------- | -------------------------------------------------- | --------------------- |
-|  load_zone_id  | string  | Yes      | Identifier of the load zone                        |  APATZINGAN           |
-|  date_start    | string  | Yes      | Start date and time in YYYY-MM-DD HH:mm:ss format  |  2016-01-31 00:00:00  |
-|  date_end      | string  | Yes      | End date and time in YYYY-MM-DD HH:mm:ss format    |  2016-02-01 00:00:00  |
+|  load_zone_id  | string  | Yes      | Identifier of the load zone                         |  APATZINGAN          |
+|  date_start    | string  | Yes      | Start date and time in YYYY-MM-DD HH:mm:ss format     |  2016-01-31 00:00:00 |
+|  date_end      | string  | Yes      | End date and time in YYYY-MM-DD HH:mm:ss format       |  2016-02-01 00:00:00 |
 ```
 
 ## **Response Format**
 
-### **Success Response (200)**
+### **Success Response (200)**
 
 ```json
-**{ 
-	"status": "success", 
-	"items": 24, 
-	"data": [ 
-			{ 
-				"load_zone_id": "APATZINGAN", 
-				"timestamp": "2016-01-31 00:00:00", 
-				"date": "2016-01-31", 
-				"hour": "00", 
-				"pml": 1234.56, 
-				"pml_cng": 100.00, 
-				"pml_ene": 1000.00, 
-				"pml_per": 134.56 
-			}, 
-		// ... additional records 
+**{ 
+	"status": "success", 
+	"items": 24, 
+	"data": [ 
+			{ 
+				"load_zone_id": "APATZINGAN", 
+				"timestamp": "2016-01-31 00:00:00", 
+				"date": "2016-01-31", 
+				"hour": "00", 
+				"pml": 1234.56, 
+				"pml_cng": 100.00, 
+				"pml_ene": 1000.00, 
+				"pml_per": 134.56 
+			}, 
+		// ... additional records 
 		]
 }**
 ```
@@ -103,7 +152,7 @@ This endpoint retrieves Power Marginal Local (PML) prices for a specific load z
 ### **Error Response (400)**
 
 ```json
-**{ "status": "fail", "data": { "message": "<error message>" }}**
+**{ "status": "fail", "data": { "message": "<error message>" } }}**
 ```
 
 ## **Error Messages**
@@ -111,26 +160,26 @@ This endpoint retrieves Power Marginal Local (PML) prices for a specific load z
 ```markdown
 | Message                                        | Description                                  |
 | ---------------------------------------------- | -------------------------------------------- |
-| "Load zone ID is required"                     | The load_zone_id parameter is missing        |
-| "Both date_start and date_end are required"    | One or both date parameters are missing      |
-| "Invalid date format. Use YYYY-MM-DD HH:mm:ss" | Dates provided are not in the correct format |
-| "date_start must be before date_end"           | The start date is later than the end date    |
-| "No query results"                             | No data found for the specified parameters   |
+| "Load zone ID is required"                     | The load_zone_id parameter is missing        |
+| "Both date_start and date_end are required"     | One or both date parameters are missing      |
+| "Invalid date format. Use YYYY-MM-DD HH:mm:ss" | Dates provided are not in the correct format |
+| "date_start must be before date_end"             | The start date is later than the end date      |
+| "No query results"                             | No data found for the specified parameters     |
 ```
 
-## **Response Fields**
+## **Response Fields**
 
 ```markdown
-| Field          | Type    | Description                       |
-| -------------- | ------- | --------------------------------- |
-|  load_zone_id  | string  | Identifier of the load zone       |
-|  timestamp     | string  | Date and time of the price record |
-|  date          | string  | Date of the price record          |
-|  hour          | string  | Hour of the price record          |
-|  pml           | number  | Total Power Marginal Local price  |
-|  pml_cng       | number  | Congestion component of PML       |
-|  pml_ene       | number  | Energy component of PML           |
-|  pml_per       | number  | Losses component of PML           |
+| Field          | Type    | Description                         |
+| -------------- | ------- | ----------------------------------- |
+|  load_zone_id  | string  | Identifier of the load zone           |
+|  timestamp     | string  | Date and time of the price record     |
+|  date          | string  | Date of the price record             |
+|  hour          | string  | Hour of the price record             |
+|  pml           | number  | Total Power Marginal Local price      |
+|  pml_cng       | number  | Congestion component of PML          |
+|  pml_ene       | number  | Energy component of PML              |
+|  pml_per       | number  | Losses component of PML              |
 ```
 
 ## **Example Request**
@@ -141,13 +190,13 @@ curl -XGET -H 'x-api-key: [your-api-key]' 'https://api.batuenergy.com/electricit
 
 ## **Notes**
 
-- The API returns hourly PML prices within the specified date range
-- Dates must be in YYYY-MM-DD HH:mm:ss format
-- The maximum date range that can be queried may be limited
+- The API returns hourly PML prices within the specified date range
+- Dates must be in YYYY-MM-DD HH:mm:ss format
+- The maximum date range that can be queried may be limited
 - All times are assumed to be in the local timezone of the load zone
 - Results are ordered by timestamp in ascending order
 
-Puedes consultar todas las LoadZoneIDs en la columna “Zona de Carga” de este archivo.
+Puedes consultar todas las LoadZoneIDs en la columna "Zona de Carga" de este archivo.
 
 ## Parámetros del Sistema de Almacenamiento
 
