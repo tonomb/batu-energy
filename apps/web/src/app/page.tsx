@@ -49,7 +49,7 @@ export default function DashboardPage() {
   // Run optimization on component mount
   useEffect(() => {
     runOptimization();
-  }, []); // Empty dependency array means this runs once on mount
+  }, []);
 
   const { 
     mutate: fetchMarketData, 
@@ -63,15 +63,20 @@ export default function DashboardPage() {
       selectedZone,
       date,
       addDays(date, 30)
-    )
-    ,
+    ),
     onSuccess: (data) => {
-      console.log('Optimization succeeded:', data);
+      console.log('Market data fetch succeeded:', data);
     },
     onError: (error) => {
-      console.error('Optimization failed:', error);
+      console.error('Market data fetch failed:', error);
     }
   });
+
+  // Run both operations when zone or date changes
+  useEffect(() => {
+    runOptimization();
+    fetchMarketData();
+  }, [selectedZone, date]); // Add dependencies to re-run when these change
 
   // Log mutation state changes
   console.log('Mutation status:', {
@@ -131,7 +136,8 @@ export default function DashboardPage() {
             <CardContent>
               <BatteryOperationsChart 
                 optimizationResult={optimizationResult}
-                isLoading={isLoading}
+                marketData={marketData}
+                isLoading={isLoading || isLoadingMarketData}
               />
             </CardContent>
           </Card>

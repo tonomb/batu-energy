@@ -47,11 +47,13 @@ export const createServer = (): Express => {
     
     .post("/market-data", async (req, res) => {
       try {
-        const { zone, start_date, end_date } = req.query;
+        // Change from req.query to req.body since we're using POST
+        const { load_zone_id, date_start, date_end } = req.body;
+        
         const marketData = await fetchMarketData({
-          load_zone_id: zone as string,
-          date_start: start_date as string,
-          date_end: end_date as string,
+          load_zone_id: load_zone_id,
+          date_start: date_start,
+          date_end: date_end,
         });
 
         return res.json(marketData);

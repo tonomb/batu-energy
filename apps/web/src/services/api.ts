@@ -96,11 +96,15 @@ export const api = {
   },
 
   async getMarketData(zone: string, startDate: Date, endDate: Date): Promise<MarketData> {
-    const response = await axios.post(`${API_URL}/market-data`, {
-        zone: zone,
-        start_date: format(startDate, 'yyyy-MM-dd HH:mm:ss'),
-        end_date: format(endDate, 'yyyy-MM-dd HH:mm:ss'),
-    });
+    const params = {
+      load_zone_id: zone,
+      date_start: format(startDate, 'yyyy-MM-dd HH:mm:ss'),
+      date_end: format(endDate, 'yyyy-MM-dd HH:mm:ss'),
+    };
+
+    console.log('Fetching market data with params:', params);
+
+    const response = await axios.post(`${API_URL}/market-data`, params);
     return response.data;
   },
 }; 
