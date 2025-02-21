@@ -42,15 +42,21 @@ export interface OptimizationResult {
     avg_charge_price: number;
     avg_discharge_price: number;
   }>;
-  summary: {
-    total_revenue: number;
-    avg_daily_revenue: number;
-    best_day: { date: string; revenue: number };
-    worst_day: { date: string; revenue: number };
-    total_cycles: number;
-    avg_cycle_revenue: number;
-    avg_arbitrage_spread: number;
-  };
+  summary: OptimizationSummary;
+}
+
+export interface BestWorstDay {
+  date: string;
+  revenue: number;
+}
+export interface OptimizationSummary {
+  total_revenue: number;
+  avg_daily_revenue: number;
+  best_day: BestWorstDay;
+  worst_day: BestWorstDay;
+  total_cycles: number;
+  avg_cycle_revenue: number;
+  avg_arbitrage_spread: number;
 }
 
 export interface MarketData {

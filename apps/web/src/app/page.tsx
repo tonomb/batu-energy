@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { format, addDays } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import { useQuery, useMutation } from "@tanstack/react-query"
@@ -44,6 +44,27 @@ export default function DashboardPage() {
         date_end: format(addDays(date, 30), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
       }
     ),
+  });
+
+  // Run optimization on component mount
+  useEffect(() => {
+    runOptimization();
+  }, []); // Empty dependency array means this runs once on mount
+
+  const { 
+    mutate: fetchMarketData, 
+    data: marketData, 
+    isPending: isLoadingMarketData,
+    error: marketDataError,
+    status: marketDataStatus
+  } = useMutation({
+    mutationKey: ['market-data'],
+    mutationFn: () => api.getMarketData(
+      selectedZone,
+      date,
+      addDays(date, 30)
+    )
+    ,
     onSuccess: (data) => {
       console.log('Optimization succeeded:', data);
     },
@@ -115,19 +136,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Revenue Breakdown</CardTitle>
-                <CardDescription>Daily performance analysis</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RevenueBreakdownChart 
-                  optimizationResult={optimizationResult}
-                  isLoading={isLoading}
-                />
-              </CardContent>
-            </Card>
+          <div className="grid gap-6">
             <Card>
               <CardHeader>
                 <CardTitle>Key Metrics</CardTitle>
@@ -135,7 +144,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <MetricsPanel 
-                  optimizationResult={optimizationResult}
+                  summary={optimizationResult?.summary}
                   isLoading={isLoading}
                 />
               </CardContent>
