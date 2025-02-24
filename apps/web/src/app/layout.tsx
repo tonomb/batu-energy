@@ -1,4 +1,7 @@
 import { Providers } from "./providers"
+import { Raleway } from 'next/font/google'
+
+const raleway = Raleway({ subsets: ['latin'] })
 import "./globals.css"
 
 export default function RootLayout({
@@ -7,7 +10,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={raleway.className}>
       <body suppressHydrationWarning>
         <Providers>{children}</Providers>
       </body>

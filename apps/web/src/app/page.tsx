@@ -24,7 +24,13 @@ const DEFAULT_BATTERY_PARAMS: BatteryParams = {
 };
 
 export default function DashboardPage() {
-  const [date, setDate] = useState<Date>(new Date('2024-01-02'))
+  const [dateRange, setDateRange] = useState<{
+    from: Date;
+    to: Date;
+  }>({
+    from: new Date('2024-01-02'),
+    to: addDays(new Date('2024-01-02'), 30)
+  });
   const [selectedZone, setSelectedZone] = useState("APATZINGAN")
 
   // Optimization mutation
@@ -40,8 +46,8 @@ export default function DashboardPage() {
       DEFAULT_BATTERY_PARAMS,
       {
         load_zone_id: selectedZone,
-        date_start: format(date, "yyyy-MM-dd'T'HH:mm:ss'Z'"),
-        date_end: format(addDays(date, 30), "yyyy-MM-dd'T'HH:mm:ss'Z'"),
+        date_start: format(dateRange.from, "yyyy-MM-dd'T'HH:mm:ss'Z'"),
+        date_end: format(dateRange.to, "yyyy-MM-dd'T'HH:mm:ss'Z'"),
       }
     ),
   });
@@ -61,8 +67,8 @@ export default function DashboardPage() {
     mutationKey: ['market-data'],
     mutationFn: () => api.getMarketData(
       selectedZone,
-      date,
-      addDays(date, 30)
+      dateRange.from,
+      dateRange.to
     ),
     onSuccess: (data) => {
       console.log('Market data fetch succeeded:', data);
@@ -76,7 +82,7 @@ export default function DashboardPage() {
   useEffect(() => {
     runOptimization();
     fetchMarketData();
-  }, [selectedZone, date]); // Add dependencies to re-run when these change
+  }, [selectedZone, dateRange.from, dateRange.to]); // Add dependencies to re-run when these change
 
   // Log mutation state changes
   console.log('Mutation status:', {
@@ -85,7 +91,10 @@ export default function DashboardPage() {
     hasData: !!optimizationResult,
     error: error,
     selectedZone,
-    date: format(date, "yyyy-MM-dd")
+    dateRange: {
+      from: format(dateRange.from, "yyyy-MM-dd"),
+      to: format(dateRange.to, "yyyy-MM-dd")
+    }
   });
 
   return (
@@ -109,13 +118,36 @@ export default function DashboardPage() {
             </Select>
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" className="w-[240px] justify-start text-left font-normal">
+                <Button variant="outline" className="w-[300px] justify-start text-left font-normal">
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : <span>Pick a date</span>}
+                  {dateRange.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "MMM d, yyyy")} - {format(dateRange.to, "MMM d, yyyy")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "MMM d, yyyy")
+                    )
+                  ) : (
+                    <span>Pick a date range</span>
+                  )}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="end">
-                <Calendar mode="single" selected={date} onSelect={(d) => d && setDate(d)} initialFocus />
+                <Calendar
+                  mode="range"
+                  selected={{
+                    from: dateRange.from,
+                    to: dateRange.to
+                  }}
+                  onSelect={(range) => {
+                    if (range?.from && range?.to) {
+                      setDateRange({ from: range.from, to: range.to });
+                    }
+                  }}
+                  numberOfMonths={2}
+                  initialFocus
+                />
               </PopoverContent>
             </Popover>
             <Button 
