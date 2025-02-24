@@ -12,7 +12,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BatteryOperationsChart } from "./battery-chart"
-import { RevenueBreakdownChart } from "./revenue-breakdown-chart"
 import { MetricsPanel } from "./metrics-panel"
 
 const DEFAULT_BATTERY_PARAMS: BatteryParams = {
@@ -82,8 +81,8 @@ export default function DashboardPage() {
   useEffect(() => {
     runOptimization();
     fetchMarketData();
-  }, [selectedZone, dateRange.from, dateRange.to]); // Add dependencies to re-run when these change
-
+  }, [selectedZone, dateRange.from, dateRange.to]);
+  
   // Log mutation state changes
   console.log('Mutation status:', {
     status,
@@ -163,7 +162,7 @@ export default function DashboardPage() {
           <Card>
             <CardHeader>
               <CardTitle>Market & Battery Operations</CardTitle>
-              <CardDescription>Visualize market prices and battery charge/discharge actions</CardDescription>
+              <CardDescription>Visualize Daily Market Prices and Battery Charge/Discharge Actions</CardDescription>
             </CardHeader>
             <CardContent>
               <BatteryOperationsChart 
