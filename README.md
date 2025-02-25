@@ -31,7 +31,7 @@ This project was created using a turbo monorepo with npm as package manager.
 
 ### .env.local at /web 
 ```
-NEXT_PUBLIC_OPTIMIZE_API_URL="https://jpwro0mrij.execute-api.us-east-1.amazonaws.com"
+NEXT_PUBLIC_OPTIMIZE_API_URL= 
 NEXT_PUBLIC_BATU_ENERGY_API_URL=
 NEXT_PUBLIC_BATU_ENERGY_API_KEY=
 NEXT_PUBLIC_API_URL=http://localhost:4000
