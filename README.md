@@ -21,11 +21,37 @@ This project was created using a turbo monorepo with npm as package manager.
 ## How to run
 
 1. Clone the repository
-2. Run `npm install` to install the dependencies
-3. Run `npm run dev` to start all apps
-4. Frontend Dashboard is hosted at `localhost:3000`
+2. Add a .env file at the root of the repository and a .env.local file at the `/web` directoy
+3. Run `npm install` to install the dependencies
+4. Run `npm run dev` to start all apps
+5. Frontend Dashboard is hosted at `localhost:3000`
 6. API is hosted at `localhost:4000`
 
+## Secrets 
+
+### .env.local at /web 
+```
+NEXT_PUBLIC_OPTIMIZE_API_URL="https://jpwro0mrij.execute-api.us-east-1.amazonaws.com"
+NEXT_PUBLIC_BATU_ENERGY_API_URL=
+NEXT_PUBLIC_BATU_ENERGY_API_KEY=
+NEXT_PUBLIC_API_URL=http://localhost:4000
+```
+### .env at root
+```
+
+### API ###
+API_PORT=4000
+
+### AWS ###
+AWS_REGION=us-east-1
+AWS_ACCOUNT_ID=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+
+### BATU ENERGY ###
+BATU_ENERGY_API_KEY=
+BATU_ENERGY_API_URL=
+```
 ---
 
 ## Deploy to AWS
@@ -35,7 +61,7 @@ The project uses terraform to deploy the infrastructure in AWS.
 
 ## Building and Deploying Lambda
 
-1. Add your AWS credentials to the `.env` file. Follow this [tutorial](https://medium.com/@CloudTopG/discover-the-3-steps-to-creating-an-iam-user-with-access-secret-access-keys-for-terraform-scripts-28110e280460) to create an IAM user with access to the AWS account.
+1. Add your AWS credentials to the `.env` file at the root of the repository. Follow this [tutorial](https://medium.com/@CloudTopG/discover-the-3-steps-to-creating-an-iam-user-with-access-secret-access-keys-for-terraform-scripts-28110e280460) to create an IAM user with access to the AWS account.
 
 ```
 AWS_REGION=
