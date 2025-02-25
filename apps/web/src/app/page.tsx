@@ -22,7 +22,7 @@ const DEFAULT_BATTERY_PARAMS: BatteryParams = {
   max_soc: 1.0,
 };
 
-// TODO: Add all nodes
+// TODO: Add all nodes API endpoint
 const nodes = ['APATZINGAN', 'CANCUN','MONTERREY', 'MERIDA', 'PUEBLA',  'OBREGON'];
 
 export default function DashboardPage() {
