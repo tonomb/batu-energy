@@ -13,6 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { BatteryOperationsChart } from "./battery-chart"
 import { MetricsPanel } from "./metrics-panel"
+import { BatteryParamsForm } from "./battery-params-form"
 
 const DEFAULT_BATTERY_PARAMS: BatteryParams = {
   capacity_mw: 10,
@@ -34,6 +35,7 @@ export default function DashboardPage() {
     to: addDays(new Date('2024-01-02'), 30)
   });
   const [selectedZone, setSelectedZone] = useState(nodes[0])
+  const [batteryParams, setBatteryParams] = useState<BatteryParams>(DEFAULT_BATTERY_PARAMS);
 
   // Optimization mutation
   const { 
@@ -45,7 +47,7 @@ export default function DashboardPage() {
   } = useMutation({
     mutationKey: ['optimize'],
     mutationFn: () => api.optimize(
-      DEFAULT_BATTERY_PARAMS,
+      batteryParams,
       {
         load_zone_id: selectedZone,
         date_start: format(dateRange.from, "yyyy-MM-dd'T'HH:mm:ss'Z'"),
@@ -161,6 +163,26 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        <div className="grid grid-cols-2 gap-6">
+          
+          <BatteryParamsForm 
+              defaultParams={DEFAULT_BATTERY_PARAMS}
+              onChange={setBatteryParams}
+            />
+            <Card>
+              <CardHeader>
+                <CardTitle>Key Metrics</CardTitle>
+                <CardDescription>Performance overview</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <MetricsPanel 
+                  summary={optimizationResult?.summary}
+                  isLoading={isLoading}
+                />
+              </CardContent>
+            </Card>
+          </div>
+
         <div className="grid gap-6">
           <Card>
             <CardHeader>
@@ -176,20 +198,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
 
-          <div className="grid gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Key Metrics</CardTitle>
-                <CardDescription>Performance overview</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <MetricsPanel 
-                  summary={optimizationResult?.summary}
-                  isLoading={isLoading}
-                />
-              </CardContent>
-            </Card>
-          </div>
+          
         </div>
       </div>
     </div>
