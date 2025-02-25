@@ -23,6 +23,8 @@ This project was created using a turbo monorepo with npm as package manager.
 1. Clone the repository
 2. Run `npm install` to install the dependencies
 3. Run `npm run dev` to start all apps
+4. Frontend Dashboard is hosted at `localhost:3000`
+6. API is hosted at `localhost:4000`
 
 ---
 
