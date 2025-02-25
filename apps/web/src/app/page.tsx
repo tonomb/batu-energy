@@ -22,6 +22,9 @@ const DEFAULT_BATTERY_PARAMS: BatteryParams = {
   max_soc: 1.0,
 };
 
+// TODO: Add all nodes
+const nodes = ['APATZINGAN', 'CANCUN','MONTERREY', 'MERIDA', 'PUEBLA',  'OBREGON'];
+
 export default function DashboardPage() {
   const [dateRange, setDateRange] = useState<{
     from: Date;
@@ -30,7 +33,7 @@ export default function DashboardPage() {
     from: new Date('2024-01-02'),
     to: addDays(new Date('2024-01-02'), 30)
   });
-  const [selectedZone, setSelectedZone] = useState("APATZINGAN")
+  const [selectedZone, setSelectedZone] = useState(nodes[0])
 
   // Optimization mutation
   const { 
@@ -82,7 +85,7 @@ export default function DashboardPage() {
     runOptimization();
     fetchMarketData();
   }, [selectedZone, dateRange.from, dateRange.to]);
-  
+
   // Log mutation state changes
   console.log('Mutation status:', {
     status,
@@ -110,9 +113,9 @@ export default function DashboardPage() {
                 <SelectValue placeholder="Select zone" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="APATZINGAN">APATZINGAN</SelectItem>
-                <SelectItem value="GUADALAJARA">GUADALAJARA</SelectItem>
-                <SelectItem value="MEXICALI">MEXICALI</SelectItem>
+                {nodes.map(zone => (
+                  <SelectItem key={zone} value={zone}>{zone}</SelectItem>
+                ))}
               </SelectContent>
             </Select>
             <Popover>
