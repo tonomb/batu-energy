@@ -75,6 +75,13 @@ curl -X POST $(terraform output -raw api_url)/optimize \
     }
   }'
 ```
+## Proof Of Concept
+
+### Api Gateway
+![CleanShot 2025-02-24 at 18 14 39@2x](https://github.com/user-attachments/assets/b3770787-34dc-4ed9-8dfb-dcc7bf9e08b8)
+
+### Lambda Function
+![CleanShot 2025-02-24 at 18 15 16](https://github.com/user-attachments/assets/d50b15f2-9d84-4284-8eda-71736b169cf4)
 
 # Code Challenge: Battery Storage Arbitrage Optimizer
 
